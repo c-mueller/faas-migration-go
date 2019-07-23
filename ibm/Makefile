@@ -2,11 +2,11 @@
 
 
 build:
-	env GOOS=linux GO111MODULES=on go build -v -a -ldflags="-s -w" -o bin/put functions/put.go
-	env GOOS=linux GO111MODULES=on go build -v -a -ldflags="-s -w" -o bin/get functions/get.go
-	env GOOS=linux GO111MODULES=on go build -v -a -ldflags="-s -w" -o bin/del functions/delete.go
-	env GOOS=linux GO111MODULES=on go build -v -a -ldflags="-s -w" -o bin/lst functions/list.go
-	env GOOS=linux GO111MODULES=on go build -v -a -ldflags="-s -w" -o bin/done functions/done.go
+	env GOOS=linux GOARCH=amd64 GO111MODULES=on go build -v -a -o bin/put functions/put.go
+	env GOOS=linux GOARCH=amd64 GO111MODULES=on go build -v -a -o bin/get functions/get.go
+	env GOOS=linux GOARCH=amd64 GO111MODULES=on go build -v -a -o bin/del functions/delete.go
+	env GOOS=linux GOARCH=amd64 GO111MODULES=on go build -v -a -o bin/lst functions/list.go
+	env GOOS=linux GOARCH=amd64 GO111MODULES=on go build -v -a -o bin/done functions/done.go
 
 package: build
 	cd bin && cp put exec && zip put.zip exec && rm exec

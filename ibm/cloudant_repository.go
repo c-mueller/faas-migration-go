@@ -7,6 +7,8 @@ import (
 	"github.com/google/uuid"
 )
 
+type Obejct map[string]interface{}
+
 const CloudantEndpoint = "https://44f2aef2-a020-443d-b86e-378fe46e5ccd-bluemix.cloudantnosqldb.appdomain.cloud/"
 const CloudantUserName = "theressidespeneirdistome"
 const CloudantPassword = "29a42a1434b189f4586ac238714dd3064d91ca17"
