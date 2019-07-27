@@ -1,6 +1,7 @@
 package ibm
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/c-mueller/faas-migration-go/core"
 	"github.com/cloudant-labs/go-cloudant"
@@ -32,6 +33,9 @@ type cloudantItem struct {
 }
 
 func NewCloudantRepository(data Obejct) core.Repository {
+	d, _ := json.Marshal(data)
+	fmt.Println(string(d))
+
 	CloudantEndpoint = data[CloudantEndpointParamName].(string)
 	CloudantUserName = data[CloudantUsernameParamName].(string)
 	CloudantPassword = data[CloudantPasswordParamName].(string)
@@ -52,10 +56,15 @@ func (c *cloudantRepository) Init() error {
 		fmt.Println(err.Error())
 		return err
 	}
+
 	_, err = client.Get(DatabaseName)
 	if err != nil {
 		fmt.Println(err.Error())
-		return err
+		_, err = client.GetOrCreate(DatabaseName)
+		if err != nil {
+			fmt.Println(err.Error())
+			return err
+		}
 	}
 
 	c.Client = client
