@@ -28,12 +28,22 @@ package: build
 clean:
 	rm -rvf ./bin
 
-deploy: clean package
+deploy_actions: clean package
 	cd bin/put && ibmcloud fn action create todo-put --web true --native exec.zip -a final true -p cloudant_host $(CLOUDANT_HOSTNAME) -p cloudant_username $(CLOUDANT_USERNAME) -p cloudant_password $(CLOUDANT_PASSWORD) -p cloudant_db_name $(CLOUDANT_DB_NAME)
 	cd bin/get && ibmcloud fn action create todo-get --web true --native exec.zip -a final true -p cloudant_host $(CLOUDANT_HOSTNAME) -p cloudant_username $(CLOUDANT_USERNAME) -p cloudant_password $(CLOUDANT_PASSWORD) -p cloudant_db_name $(CLOUDANT_DB_NAME)
 	cd bin/del && ibmcloud fn action create todo-del --web true --native exec.zip -a final true -p cloudant_host $(CLOUDANT_HOSTNAME) -p cloudant_username $(CLOUDANT_USERNAME) -p cloudant_password $(CLOUDANT_PASSWORD) -p cloudant_db_name $(CLOUDANT_DB_NAME)
 	cd bin/lst && ibmcloud fn action create todo-lst --web true --native exec.zip -a final true -p cloudant_host $(CLOUDANT_HOSTNAME) -p cloudant_username $(CLOUDANT_USERNAME) -p cloudant_password $(CLOUDANT_PASSWORD) -p cloudant_db_name $(CLOUDANT_DB_NAME)
 	cd bin/done && ibmcloud fn action create todo-done --web true --native exec.zip -a final true -p cloudant_host $(CLOUDANT_HOSTNAME) -p cloudant_username $(CLOUDANT_USERNAME) -p cloudant_password $(CLOUDANT_PASSWORD) -p cloudant_db_name $(CLOUDANT_DB_NAME)
+
+deploy_api:
+	ibmcloud fn api create /todo /lst get todo-lst --response-type http
+	ibmcloud fn api create /todo /get get todo-get --response-type http
+	ibmcloud fn api create /todo /put post todo-put --response-type http
+	ibmcloud fn api create /todo /del post todo-del --response-type http
+	ibmcloud fn api create /todo /done post todo-done --response-type http
+	ibmcloud fn api list --full 
+
+deploy: deploy_actions deploy_api
 
 update: clean package
 	cd bin/put && ibmcloud fn action update todo-put --native exec.zip -a final true -p cloudant_host $(CLOUDANT_HOSTNAME) -p cloudant_username $(CLOUDANT_USERNAME) -p cloudant_password $(CLOUDANT_PASSWORD) -p cloudant_db_name $(CLOUDANT_DB_NAME)
@@ -49,3 +59,4 @@ destroy:
 	ibmcloud fn action delete todo-del
 	ibmcloud fn action delete todo-lst
 	ibmcloud fn action delete todo-done
+	ibmcloud fn api delete /todo 
