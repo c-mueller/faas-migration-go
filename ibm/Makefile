@@ -7,10 +7,6 @@ GOFLAGS := -v
 
 .PHONY: build clean deploy
 
-init:
-	ibmcloud fn namespace create todo-api
-	ibmcloud fn property set --namespace todo-api
-
 build:
 	env GOOS=linux CGO_ENABLED=0 GOARCH=amd64 GO111MODULES=on go build $(GOFLAGS) -o bin/put/exec functions/put.go
 	env GOOS=linux CGO_ENABLED=0 GOARCH=amd64 GO111MODULES=on go build $(GOFLAGS) -o bin/get/exec functions/get.go
