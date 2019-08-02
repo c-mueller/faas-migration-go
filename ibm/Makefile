@@ -1,5 +1,6 @@
-CLOUDANT_INSTANCE_NAME := "todo-cloudant-db"
-CLOUDANT_INSTANCE_PLAN := "Lite"
+CLOUDANT_INSTANCE_NAME := todo-cloudant-db
+CLOUDANT_ACCESS_KEY_NAME := access-key
+CLOUDANT_INSTANCE_PLAN := Lite
 
 GOFLAGS := -v
 
@@ -7,14 +8,14 @@ GOFLAGS := -v
 
 init:
 	ibmcloud service create cloudantNoSQLDB $(CLOUDANT_INSTANCE_PLAN) $(CLOUDANT_INSTANCE_NAME) || true
-	ibmcloud service key-create $(CLOUDANT_INSTANCE_NAME) access-key || true
+	ibmcloud service key-create $(CLOUDANT_INSTANCE_NAME) $(CLOUDANT_ACCESS_KEY_NAME) || true
 
 build_creds: PASSWORD := `cat bin/raw_creds.json | jq -r '.password'`
 build_creds: USERNAME := `cat bin/raw_creds.json | jq -r '.username'`
 build_creds: HOSTNAME := `cat bin/raw_creds.json | jq -r '.url'`
 build_creds: init
 	mkdir bin || true
-	ibmcloud service key-show todo-cloudant-db access-key | tail -n +5 | jq > bin/raw_creds.json
+	ibmcloud service key-show todo-cloudant-db $(CLOUDANT_ACCESS_KEY_NAME) | tail -n +5 | jq > bin/raw_creds.json
 	cp cloudant_creds.template.json cloudant_creds.json
 	jq ".cloudant_password = \"$(PASSWORD)\"" cloudant_creds.json | sponge cloudant_creds.json
 	jq ".cloudant_username = \"$(USERNAME)\"" cloudant_creds.json | sponge cloudant_creds.json
@@ -50,9 +51,15 @@ deploy_api:
 	ibmcloud fn api create /todo /put post todo-put --response-type http
 	ibmcloud fn api create /todo /del post todo-del --response-type http
 	ibmcloud fn api create /todo /done post todo-done --response-type http
-	ibmcloud fn api list --full 
+	ibmcloud fn api list --full
 
-deploy: deploy_actions deploy_api
+create_database:
+	ibmcloud fn action invoke Bluemix_$(CLOUDANT_INSTANCE_NAME)_$(CLOUDANT_ACCESS_KEY_NAME)/create-database -r -p dbname items || true
+
+delete_database:
+	ibmcloud fn action invoke Bluemix_$(CLOUDANT_INSTANCE_NAME)_$(CLOUDANT_ACCESS_KEY_NAME)/delete-database -r -p dbname items || true
+
+deploy: deploy_actions deploy_api create_database
 
 update: clean package
 	cd bin/put && ibmcloud fn action update todo-put --native exec.zip -a final true -P ../../cloudant_creds.json
