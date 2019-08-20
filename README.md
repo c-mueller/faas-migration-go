@@ -24,7 +24,7 @@ The deployment procedure differs for each implementation. Please look into the d
 
 ## Testing
 
-The ToDo API can be tested using an executable. How this is specifically done can be found [here](https://github.com/c-mueller/faas-migration/ToDo-API/).
+The ToDo API can be tested using an executable. How this is specifically done can be found [here](https://github.com/c-mueller/faas-migration/tree/master/ToDo-API).
 
 ## License
 
